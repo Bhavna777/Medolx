@@ -1,0 +1,148 @@
+*{
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+  }
+
+
+a{
+  text-decoration: none !important;
+}
+
+.button{
+  padding: 10px 30px;
+  color: white;
+  background: green;
+  cursor: pointer;
+  border-radius: 10px;
+  border: white 2px solid;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.button:hover{
+  color: green;
+  background: white;
+  border: green 2px solid;
+}
+
+.button a{
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+
+nav img{
+  height: 100px;
+  width: 200px;
+}
+
+/* Hero Section  */
+
+.hero{
+    background: rgb(124, 211, 245);
+    background-size: cover;
+    height: 40vh;
+    text-align: center;
+    align-items: center;
+}
+
+.hero h1{
+  font-size: 50px;
+  word-spacing: 0.1px;
+}
+
+
+  
+.services{
+  padding-top: 50px;
+  padding-bottom: 50px;
+  background-color: #f6f6f6;
+}
+
+.services p{
+  text-align: center;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.doctors{
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.doctors img{
+  height: 300px;
+  width: 250px;
+}
+
+.doctor p{
+  text-align: center;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+
+.products{
+  padding-bottom: 50px;
+  padding-top: 50px;
+  background-color: #f6f6f6;
+}
+
+.products img{
+  height: 300px;
+  width: 250px;
+}
+
+.product p{
+  text-align: center;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.product{
+  padding-top: 30px;
+  cursor: pointer;
+}
+
+.blogs{
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.blogs img{
+  height: 200px;
+  width: 350px;
+}
+
+.blog p{
+  text-align: center;
+  margin-top: 10px;
+}
+
+.seeAll{
+  text-align: right;
+  margin-top: 30px;
+}
+
+
+
+/* ChatApp CSS */
+
+
+/* label focus color */
+.input-field input[type=text]:focus + label {
+  color: #000 !important;
+}
+/* label underline focus color */
+.input-field input[type=text]:focus {
+  border-bottom: 1px solid #000 !important;
+  box-shadow: 0 1px 0 0 #000 !important;
+}
+
+.input-field input[type=password]:focus {
+  border-bottom: 1px solid #000 !important;
+  box-shadow: 0 1px 0 0 #000 !important;
+}

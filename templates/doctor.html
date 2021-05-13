@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor{% endblock %}
+{% block body %}
+{% load static %}
+<section class="doctors">
+    <h1 class="text-center">{{doctor.user.first_name}} {{doctor.user.last_name}}</h1><hr>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-7 text-center mt-3">
+                <p>Name :-  Dr. {{doctor.user.first_name}} {{doctor.user.last_name}}</p>
+                <p>Specilities :- {{doctor.department}}</p>
+                <p>Experience :- {{doctor.experience}} years</p>
+                <p>Qualification :- {{doctor.qualification}}</p>
+                <p>Consultation Fee :- {{doctor.consultation_fee}}</p>
+                <a href="/chat"><button class="btn btn-primary mt-3">Consult Now</button></a>
+            </div>
+            <div class="col-5 text-left">
+                <img src="/static/{{doctor.profile_pic}}" alt="">
+            </div>
+        </div>
+    </div>
+    
+</section>
+
+{% endblock %}

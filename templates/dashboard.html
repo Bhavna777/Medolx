@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+{% load static %}
+
+<link rel="stylesheet" href="{%  static  'css/dashboard.css'  %}">
+<div class="dashboard">
+    <h1 class="text-center text-dark pt-5">Welcome {{request.user.username}}</h1>
+    <div class="buttons mt-5 text-center">
+        <div><a href="/"><button class="btn btn-primary">Back to Home</button></a></div>
+        <div><a href="/doctors"><button class="btn btn-primary mt-3">Consult Now</button></a></div>
+        <div><a href="/products"><button class="btn btn-primary mt-3">Purchase Medicines</button></a></div>
+        <div><a href="/blogs"><button class="btn btn-primary mt-3">Read Our Blogs</button></a></div>
+        <div><a href="/logout"><button class="btn btn-primary mt-3">Logout</button></a></div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
