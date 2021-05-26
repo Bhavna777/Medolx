@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import CharField
+from django.db.models import IntegerField
+from datetime import datetime
 
 
 
@@ -21,14 +23,13 @@ departments=[
 ('PAEDIATRIC','PAEDIATRIC'),
 ('DIABITIS SPACIAlist','DIABITIS SPACIAlist'),
 ('Covid Care','Covid Care'),
-
 ]
 
 
 class Doctor(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     email = models.CharField(max_length=35)
-    phone_no = models.CharField(max_length=10)
+    phone_no = models.CharField(max_length=10, unique=True)
     address = models.CharField(max_length=40)
     qualification = CharField(max_length=25)
     hospital_name = models.CharField(max_length=50)
@@ -57,7 +58,7 @@ class Doctor(models.Model):
 class Patient(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE, default=None)
     email=models.CharField(max_length=30)
-    phone_no = models.CharField(max_length=10)
+    phone_no = models.CharField(max_length=10, unique=True)
     gender = (
         ('M', 'Male'),
         ('F', 'Female'),
@@ -71,11 +72,33 @@ class Patient(models.Model):
     def get_id(self):
         return self.user.id
     def __str__(self):
-        return "{} ({})".format(self.user.first_name,self.user.last_name)
+        return self.user.username
 
 
 
+# class Schedule(models.Model):
+#     doctor=models.ForeignKey(Doctor, on_delete=models.CASCADE)
+#     open=models.TimeField()
+#     close=models.TimeField()
 
+class Appointment(models.Model):
+    name = models.CharField(max_length=20, null=False)
+    email = models.CharField(max_length=40, null=True)
+    phone_no = models.CharField(max_length=10, unique=True, null=False)
+    whatsapp_no = models.CharField(max_length=10, null=True)
+    gender = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+    gender = models.CharField(max_length=1, choices=gender)
+    city = models.CharField(max_length=40, null=False)
+    problems = models.CharField(max_length=200, null=False)
+    consultation_mode = (
+        ('A', 'Audio'),
+        ('V', 'Video'),
+        ('C', 'Chat'),
+    )
+    consultation_mode = models.CharField(max_length=1, choices=consultation_mode, null=False)
 
 
 
@@ -83,7 +106,73 @@ class Product(models.Model):
     name = models.CharField(max_length=40)
     profile_pic= models.ImageField(upload_to='profile_pic/ProductProfilePic/',null=True,blank=True)
     used_for = models.CharField(max_length=40)
-    rate = models.CharField(max_length=7,null=True)
+    price = models.IntegerField()
+    discount = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+
+
+
+class Order(models.Model):
+	patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True)
+	date_ordered = models.DateTimeField(auto_now_add=True)
+	complete = models.BooleanField(default=False)
+	transaction_id = models.CharField(max_length=100, null=True)
+
+	def __str__(self):
+		return str(self.id)
+		
+	@property
+	def shipping(self):
+		shipping = False
+		orderitems = self.orderitem_set.all()
+		for i in orderitems:
+			if i.product.digital == False:
+				shipping = True
+		return shipping
+
+	@property
+	def get_cart_total(self):
+		orderitems = self.orderitem_set.all()
+		total = sum([item.get_total for item in orderitems])
+		return total 
+
+	@property
+	def get_cart_items(self):
+		orderitems = self.orderitem_set.all()
+		total = sum([item.quantity for item in orderitems])
+		return total 
+
+
+
+
+class OrderItem(models.Model):
+	product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+	quantity = models.IntegerField(default=0, null=True, blank=True)
+	date_added = models.DateTimeField(auto_now_add=True)
+
+	@property
+	def get_total(self):
+		total = self.product.price * self.quantity
+		return total
+
+
+
+class ShippingAddress(models.Model):
+	patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
+	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+	address = models.CharField(max_length=200, null=False)
+	city = models.CharField(max_length=200, null=False)
+	state = models.CharField(max_length=200, null=False)
+	zipcode = models.CharField(max_length=200, null=False)
+	date_added = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return self.address
+
 
 
 
@@ -102,24 +191,29 @@ class Blog(models.Model):
 
 
 class Contact(models.Model):
-    fname = models.CharField(max_length=10)
-    lname = models.CharField(max_length=20)
-    email = models.CharField(max_length=35)
-    message = models.TextField()
+    fname = models.CharField(max_length=10, blank = False, null = False)
+    lname = models.CharField(max_length=20, blank = False, null = False)
+    email = models.CharField(max_length=35, blank = False, null = False)
+    message = models.TextField(blank = False, null = False)
 
     def __str__(self):
         return self.email
 
 
-class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
-    message = models.CharField(max_length=1200)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)
+# class Message(models.Model):
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
+#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+#     message = models.CharField(max_length=1200)
+#     timestamp = models.DateTimeField(auto_now_add=True)
+#     is_read = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.message
+#     def __str__(self):
+#         return self.message
 
-    class Meta:
-        ordering = ('timestamp',)
+#     class Meta:
+#         ordering = ('timestamp',)
+
+
+# current_time = datetime.now()
+# print("Hour : ", end = "") 
+# print(current_time.hour) 

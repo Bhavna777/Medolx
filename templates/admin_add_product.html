@@ -66,7 +66,10 @@
               {% render_field productForm.used_for class="form-control" placeholder="Used For" %}
             </div>
             <div class="form-group">
-              {% render_field productForm.rate class="form-control" placeholder="Rate" %}
+              {% render_field productForm.price class="form-control" placeholder="Price" %}
+            </div>
+            <div class="form-group">
+              {% render_field productForm.discount class="form-control" placeholder="Discount" %}
             </div>
             <div class="form-group">
               {% render_field productForm.profile_pic required="required" class="form-control" placeholder="Product Picture" %}

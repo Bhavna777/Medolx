@@ -24,6 +24,8 @@
 <!--
 
 -->
+
+
 <div class="container">
   <div class="panel panel-primary">
     <div class="panel-heading">
@@ -36,6 +38,8 @@
           <th>Email</th>
           <th>Phone No</th>
           <th>Gender</th>
+          <th>Update</th>
+          <th>Delete</th>
         </tr>
       </thead>
       {% for p in patients %}
@@ -44,8 +48,8 @@
         <td>{{p.email}}</td>
         <td>{{p.phone_no}}</td>
         <td>{{p.gender}}</td>
-        <!-- <td><a class="btn btn-primary btn-xs" href="{% url 'admin_update_patient' p.id  %}"><span class="glyphicon glyphicon-edit"></span></a></td>
-        <td><a class="btn btn-danger btn-xs" href="{% url 'admin_delete_patient' p.id  %}"><span class="glyphicon glyphicon-trash"></span></a></td> -->
+        <td><a class="btn btn-primary btn-xs" href="{% url 'admin_update_patient' p.id  %}"><span class="glyphicon glyphicon-edit"></span></a></td>
+        <td><a class="btn btn-danger btn-xs" href="{% url 'admin_delete_patient' p.id  %}"><span class="glyphicon glyphicon-trash"></span></a></td>
       </tr>
       {% endfor %}
     </table>

@@ -1,73 +1,33 @@
 from django.shortcuts import render,redirect,reverse
 from . import forms,models
-from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
-from django.http import HttpResponseRedirect
-from django.http.response import JsonResponse, HttpResponse
-from rest_framework.parsers import JSONParser
-from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from .utils import cookieCart, cartData, guestOrder
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.views.decorators.csrf import csrf_exempt
-from .models import Message
-from .serializers import MessageSerializer, UserSerializer
+from django.http import HttpResponseRedirect
+from django.contrib.auth.models import Group
 from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login
+
+# Create your views here.
 
 
 def index(request):
-    return render(request, 'index.html')
-
-
-
-def doctors(request):
     doctors=models.Doctor.objects.all().filter(status=True)
-    return render(request,'doctors.html',{'doctors':doctors})
-
-
-def doctor(request,pk):
-    doctor=models.Doctor.objects.get(id=pk)
-    mydict={'doctor':doctor}
-    return render(request,'doctor.html',context=mydict)
-
-
-def products(request):
-    products=models.Product.objects.all().filter()
-    return render(request,'products.html',{'products':products})
-
-
-def product(request,pk):
-    product=models.Product.objects.get(id=pk)
-    mydict={'product':product}
-    return render(request,'product.html',context=mydict)
-
-
-
-def blogs(request):
     blogs=models.Blog.objects.all().filter()
-    return render(request,'blogs.html',{'blogs':blogs})
+    doc_info = []
+    for i in range(4):
+        doc_info.append(doctors[i])
 
-
-def blog(request,pk):
-    blog=models.Blog.objects.get(id=pk)
-    mydict={'blog':blog}
-    return render(request,'blog.html',context=mydict)
-
-
-
-def signin(request):
-    if request.method=='POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect('dashboard')
-        else:
-            return HttpResponseRedirect('signin')
-    return render(request, 'signin.html')
+    blog_info = []
+    for i in range(3):
+        blog_info.append(blogs[i])
+    return render(request, 'index.html',{'doctors':doctors, 'doc_info' : doc_info, 'blog_info' : blog_info})
 
 
 
-def signup(request):
+
+def signup(request):       
     userForm=forms.PatientUserForm()
     patientForm=forms.PatientForm()
     mydict={'userForm':userForm,'patientForm':patientForm}
@@ -86,25 +46,33 @@ def signup(request):
 
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
+        
+            messages.success(request, 'Your account has been created please login now')
+            return HttpResponseRedirect('signin')
 
-        return HttpResponseRedirect('signin')
+        else:
+            messages.warning(request, 'Invalid Details, May be user already exist')
     return render(request,'signup.html',context=mydict)
 
 
-def contact(request):
-    if request.method=='POST':
-        contactForm=forms.ContactForm(request.POST, request.FILES)
-        if contactForm.is_valid():
-            contact=contactForm.save()
-            contact.save()
 
-    return render(request, 'contact.html')
+def is_doctor(user):
+    return user.groups.filter(name='DOCTOR').exists()
+def is_patient(user):
+    return user.groups.filter(name='PATIENT').exists()
 
 
+@user_passes_test(is_patient)
 def dashboard(request):
     if not request.user.is_authenticated:
         return redirect('signin')
     return render(request, 'dashboard.html')
+
+@user_passes_test(is_doctor)
+def doctor_dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('signin')
+    return render(request, 'doctor_dashboard.html')
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -233,8 +201,12 @@ def admin_add_patient(request):
 
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
+            messages.success(request, 'Patient Added Successfully')
+            return HttpResponseRedirect('admin_view_patient')
+        else:
+            messages.warning(request, 'Invalid Details, May be user already exist')
 
-        return HttpResponseRedirect('admin_view_patient')
+        
     return render(request,'admin_add_patient.html',context=mydict)
 
 
@@ -259,6 +231,9 @@ def admin_update_patient(request,pk):
             patient.assignedDoctorId=request.POST.get('assignedDoctorId')
             patient.save()
             return redirect('admin_view_patient')
+            return HttpResponseRedirect('admin_view_patient')
+        else:
+            messages.warning(request, 'Please Enter Valid Details')
     return render(request,'admin_update_patient.html',context=mydict)
 
 
@@ -370,55 +345,184 @@ def admin_view_message(request):
 
 
 
-# ChatApp View 
 
 
-
-@csrf_exempt
-def message_list(request, sender=None, receiver=None):
-    """
-    List all required messages, or create a new message.
-    """
-    if request.method == 'GET':
-        messages = Message.objects.filter(sender_id=sender, receiver_id=receiver, is_read=False)
-        serializer = MessageSerializer(messages, many=True, context={'request': request})
-        for message in messages:
-            message.is_read = True
-            message.save()
-        return JsonResponse(serializer.data, safe=False)
-
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = MessageSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-
-
-
-
-def chat_view(request):
-    if not request.user.is_authenticated:
-        return redirect('signin')
-    if request.method == "GET":
-        return render(request, 'chat/chat.html',
-                      {'users': User.objects.exclude(username=request.user.username)})
-
-
-def message_view(request, sender, receiver):
-    if not request.user.is_authenticated:
-        return redirect('chat')
-    if request.method == "GET":
-        return render(request, "chat/messages.html",
-                      {'users': User.objects.exclude(username=request.user.username),
-                       'receiver': User.objects.get(id=receiver),
-                       'messages': Message.objects.filter(sender_id=sender, receiver_id=receiver) |
-                                   Message.objects.filter(sender_id=receiver, receiver_id=sender)})
+def signin(request):
+    if request.method=='POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            
+            if is_patient(request.user):
+                return redirect('dashboard')
+            elif is_doctor(request.user):
+                return redirect('doctor_dashboard')
+            return HttpResponseRedirect('admin_dashboard')
+        else:
+            return HttpResponseRedirect('signin')
+    if request.user.is_authenticated:
+        messages.warning(request, 'You are already logged in')
+        if is_doctor(request.user):
+            return redirect('doctor_dashboard')
+        elif is_patient(request.user):
+            return redirect('dashboard')
+        return HttpResponseRedirect('admin_dashboard')
+    return render(request, 'signin.html')
 
 
 
 
+
+
+def doctors(request):
+    doctors=models.Doctor.objects.all().filter(status=True)
+    return render(request,'doctors.html',{'doctors':doctors})
+
+
+def doctor(request,pk):
+    appointmentForm=forms.AppointmentForm()
+    doctor=models.Doctor.objects.get(id=pk)
+    if request.method=='POST':
+        appointmentForm=forms.AppointmentForm(request.POST, request.FILES)
+        if appointmentForm.is_valid():
+            appointment=appointmentForm.save()
+            appointment.save()
+            return render(request, 'appointments.html', {'doctor':doctor})
+    return render(request,'doctor.html', {'doctor':doctor, 'appointmentForm':appointmentForm})
+
+
+def appointment(request):
+    return render(request, 'appointments.html')
+
+# Products Start 
+
+
+def store(request):
+	data = cartData(request)
+
+	cartItems = data['cartItems']
+	order = data['order']
+	items = data['items']
+
+	products = models.Product.objects.all()
+	context = {'products':products, 'cartItems':cartItems}
+	return render(request, 'store/store.html', context)
+
+
+def cart(request):
+	data = cartData(request)
+
+	cartItems = data['cartItems']
+	order = data['order']
+	items = data['items']
+	print(items)
+
+	context = {'items':items, 'order':order, 'cartItems':cartItems}
+	return render(request, 'store/cart.html', context)
+
+def checkout(request):
+	data = cartData(request)
+	
+	cartItems = data['cartItems']
+	order = data['order']
+	items = data['items']
+
+	context = {'items':items, 'order':order, 'cartItems':cartItems}
+	return render(request, 'store/checkout.html', context)
+
+def updateItem(request):
+	data = json.loads(request.body)
+	productId = data['productId']
+	action = data['action']
+	print('Action:', action)
+	print('Product:', productId)
+
+	patient = request.user.patient
+	product = Product.objects.get(id=productId)
+	order, created = Order.objects.get_or_create(patient=patient, complete=False)
+
+	orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
+
+	if action == 'add':
+		orderItem.quantity = (orderItem.quantity + 1)
+	elif action == 'remove':
+		orderItem.quantity = (orderItem.quantity - 1)
+
+	orderItem.save()
+
+	if orderItem.quantity <= 0:
+		orderItem.delete()
+
+	return JsonResponse('Item was added', safe=False)
+
+def processOrder(request):
+	transaction_id = datetime.datetime.now().timestamp()
+	data = json.loads(request.body)
+
+	if request.user.is_authenticated:
+		patient = request.user.patient
+		order, created = Order.objects.get_or_create(patient=patient, complete=False)
+	else:
+		patient, order = guestOrder(request, data)
+
+	total = float(data['form']['total'])
+	order.transaction_id = transaction_id
+
+	if total == order.get_cart_total:
+		order.complete = True
+	order.save()
+
+	if order.shipping == True:
+		ShippingAddress.objects.create(
+		patient=patient,
+		order=order,
+		address=data['shipping']['address'],
+		city=data['shipping']['city'],
+		state=data['shipping']['state'],
+		zipcode=data['shipping']['zipcode'],
+		)
+
+	return JsonResponse('Payment submitted..', safe=False)
+
+
+
+
+
+
+def blogs(request):
+    blogs=models.Blog.objects.all().filter()
+    return render(request,'blogs.html',{'blogs':blogs})
+
+
+def blog(request,pk):
+    blog=models.Blog.objects.get(id=pk)
+    return render(request,'blog.html',{'blog':blog})
+
+
+
+
+
+# Product Views Start 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Logout View 
 
 def logout_view(request):
     logout(request)

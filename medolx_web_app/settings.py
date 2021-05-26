@@ -21,7 +21,7 @@ STATIC_DIR=os.path.join(BASE_DIR,'static')
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=jt+e-ag3krxu_&5pbu1sk0$nwfm_t3kad+%%e3xid@j^p5#f0'
+SECRET_KEY = 'ws6ijy9)lq$kyuu8210j87*x7$vdrkg*_l+rssa_u=e9j!ag%@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'medolx.apps.MedolxConfig',
-    'widget_tweaks',
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [
@@ -121,7 +121,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
 
 # Added Manually 
 

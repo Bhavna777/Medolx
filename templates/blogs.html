@@ -8,7 +8,7 @@
     <div class="container">
         <div class="row">
             {% for b in blogs %}
-            <div class="col-4">
+            <div class="col-md-auto text-center">
                 <a href="{% url 'blog' b.id  %}"><img src="{% static b.featured_pic.url %}" alt="not found"/></a>
                 <a href="{% url 'blog' b.id  %}"><p class="mt-3">{{b.title}}</p></a>
             </div>

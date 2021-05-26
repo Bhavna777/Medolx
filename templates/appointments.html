@@ -1,0 +1,16 @@
+
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Appointments{% endblock %}
+{% block body %}
+{% load static %}
+
+<div class="bg-success text-center pt-5 pb-5">
+    <h1>Hello {{request.user}}</h1>
+    <p>Your Appointment has been booked, We will contact you soon...</p>
+    <p>Patient Name :- {{request.user}}</p>
+    <p>Doctor Name :- Dr. {{doctor.user.first_name}} {{doctor.user.last_name}}</p>
+
+</div>
+
+{% endblock %}

@@ -36,14 +36,17 @@ class PatientForm(forms.ModelForm):
 
 
 
-
-
-
 class ProductForm(forms.ModelForm):
     class Meta:
         model=models.Product
-        fields=['name','profile_pic', 'used_for','rate']
+        fields=['name','profile_pic', 'used_for','price', 'discount']
 
+
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model=models.Appointment
+        fields=['name', 'email', 'phone_no', 'whatsapp_no', 'gender', 'city', 'problems', 'consultation_mode']
 
 
 class BlogForm(forms.ModelForm):

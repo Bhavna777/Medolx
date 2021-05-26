@@ -1,22 +1,15 @@
 
 from django.contrib import admin
-from .models import Doctor, Patient, Product, Blog, Contact, Message
-# Register your models here.
-class DoctorAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Doctor, DoctorAdmin)
-
-class ProductAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Product, ProductAdmin)
-
-class PatientAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Patient, PatientAdmin)
+from .models import *
 
 
-
-
+admin.site.register(Doctor)
+admin.site.register(Patient)
+admin.site.register(Appointment)
+admin.site.register(Product)
+admin.site.register(Order)
+admin.site.register(ShippingAddress)
+admin.site.register(OrderItem)
 admin.site.register(Blog)
 admin.site.register(Contact)
-admin.site.register(Message)
+
