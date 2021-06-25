@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_DIR=os.path.join(BASE_DIR,'static')
+# STATIC_DIR=os.path.join(BASE_DIR,'static')
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,7 +26,7 @@ SECRET_KEY = 'ws6ijy9)lq$kyuu8210j87*x7$vdrkg*_l+rssa_u=e9j!ag%@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.81.214.248', 'medolx.in', 'www.medolx.in']
+ALLOWED_HOSTS = ['192.81.214.248', 'medolx.in', 'www.medolx.in', '127.0.0.1']
 
 
 # Application definition
@@ -122,11 +122,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Added Manually 
+# Add these new lines
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
-
-STATICFILES_DIRS=[STATIC_DIR,]
-
-MEDIA_ROOT=os.path.join(BASE_DIR,'static')
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

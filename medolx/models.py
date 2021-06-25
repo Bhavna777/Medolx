@@ -45,7 +45,7 @@ class Doctor(models.Model):
     status=models.BooleanField(default=False)
     @property
     def get_name(self):
-        return self.user.first_name+" "+self.user.last_name
+        return "Dr. " + self.user.first_name+" "+self.user.last_name
     @property
     def get_id(self):
         return self.user.id
@@ -82,23 +82,38 @@ class Patient(models.Model):
 #     close=models.TimeField()
 
 class Appointment(models.Model):
-    name = models.CharField(max_length=20, null=False)
+    patientId=models.PositiveIntegerField(null=True)
+    doctorId=models.PositiveIntegerField(null=True)
+    patient_name = models.CharField(max_length=40, null=True)
+    doctor_name = models.CharField(max_length=40, null=True)
     email = models.CharField(max_length=40, null=True)
-    phone_no = models.CharField(max_length=10, unique=True, null=False)
+    phone_no = models.CharField(max_length=10, null=False)
     whatsapp_no = models.CharField(max_length=10, null=True)
     gender = (
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
     )
-    gender = models.CharField(max_length=1, choices=gender)
+    gender = models.CharField(max_length=7, choices=gender)
     city = models.CharField(max_length=40, null=False)
     problems = models.CharField(max_length=200, null=False)
     consultation_mode = (
-        ('A', 'Audio'),
-        ('V', 'Video'),
-        ('C', 'Chat'),
+        ('Audio', 'Audio'),
+        ('Video', 'Video'),
+        ('Chat', 'Chat'),
     )
-    consultation_mode = models.CharField(max_length=1, choices=consultation_mode, null=False)
+    consultation_mode = models.CharField(max_length=7, choices=consultation_mode, null=False)
+    date = models.DateField(null=True)
+    time = models.TimeField(null=True)
+    tracker = (
+        ('Consult', 'Consult'),
+        ('Follow_Up', 'Follow Up'),
+        ('Complete', 'Complete')
+    )
+    tracker = models.CharField(max_length=12, choices=tracker, default='Consult')
+    status=models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.patient_name
 
 
 
@@ -116,7 +131,7 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-	patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True)
+	user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 	date_ordered = models.DateTimeField(auto_now_add=True)
 	complete = models.BooleanField(default=False)
 	transaction_id = models.CharField(max_length=100, null=True)
@@ -162,7 +177,7 @@ class OrderItem(models.Model):
 
 
 class ShippingAddress(models.Model):
-	patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
+	user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
 	address = models.CharField(max_length=200, null=False)
 	city = models.CharField(max_length=200, null=False)
@@ -200,20 +215,13 @@ class Contact(models.Model):
         return self.email
 
 
-# class Message(models.Model):
-#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
-#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
-#     message = models.CharField(max_length=1200)
-#     timestamp = models.DateTimeField(auto_now_add=True)
-#     is_read = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return self.message
-
-#     class Meta:
-#         ordering = ('timestamp',)
+# Chat App Start 
 
 
-# current_time = datetime.now()
-# print("Hour : ", end = "") 
-# print(current_time.hour) 
+class Room(models.Model):
+    name = models.CharField(max_length=1000)
+class Message(models.Model):
+    value = models.CharField(max_length=1000000)
+    date = models.DateTimeField(default=datetime.now, blank=True)
+    user = models.CharField(max_length=1000000)
+    room = models.CharField(max_length=1000000)

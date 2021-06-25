@@ -34,6 +34,11 @@ color: inherit !important;
 }
 
 
+
+
+
+
+
 .navimg{
 height: 100px !important;
 width: 200px !important;
@@ -41,8 +46,15 @@ width: 200px !important;
 
 /* Hero Section  */
 
-.carousel-inner{
+/* .carousel-inner{
 width: 100%;
+} */
+
+
+.carousel-inner img{
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover;
 }
 
 
@@ -113,10 +125,12 @@ height: 200px;
 width: 350px;
 }
 
+
 .blog p{
-text-align: center;
-margin-top: 10px;
-}
+  text-align: center;
+  font-size: 20px;
+  margin-top: 10px;
+  }
 
 .seeAll{
 text-align: right;

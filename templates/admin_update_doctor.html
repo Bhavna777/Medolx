@@ -83,22 +83,22 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              {% render_field userForm.last_name class="form-control" placeholder="Last Name" %}
+              {% render_field userForm.last_name class="form-control" placeholder="Last Name" value=doctor.last_name %}
             </div>
             <div class="form-group">
               {% render_field userForm.password class="form-control" placeholder="Password" %}
             </div>
             <div class="form-group">
-              {% render_field doctorForm.phone_no class="form-control"  placeholder="Phone No" %}
+              {% render_field doctorForm.phone_no class="form-control"  placeholder="Phone No" value=doctor.phone_no %}
             </div>
             <div class="form-group">
-              {% render_field doctorForm.qualification class="form-control"  placeholder="Qualification" %}
+              {% render_field doctorForm.qualification class="form-control"  placeholder="Qualification" value=doctor.qualification %}
             </div>
             <div class="form-group">
-              {% render_field doctorForm.gender class="form-control"  placeholder="Gender" %}
+              {% render_field doctorForm.gender class="form-control"  placeholder="Gender" value=doctor.gender %}
             </div>
             <div class="form-group">
-              {% render_field doctorForm.consultation_fee class="form-control"  placeholder="Consultation Fee" %}
+              {% render_field doctorForm.consultation_fee class="form-control"  placeholder="Consultation Fee" value=doctor.consultation_fee %}
             </div>
           </div>
         </div>

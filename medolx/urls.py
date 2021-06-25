@@ -19,7 +19,6 @@ urlpatterns = [
 
 
     path('dashboard', views.dashboard, name="dashboard"),
-    path('doctor_dashboard', views.doctor_dashboard, name="doctor_dashboard"),
     path('admin_dashboard', views.admin_dashboard, name="admin_dashboard"),
     path('admin_doctor', views.admin_doctor, name="admin_doctor"),
     path('admin_view_doctor', views.admin_view_doctor, name="admin_view_doctor"),
@@ -31,6 +30,12 @@ urlpatterns = [
     path('admin_add_patient', views.admin_add_patient, name="admin_add_patient"),
     path('admin_update_patient/<int:pk>', views.admin_update_patient, name="admin_update_patient"),
     path('admin_delete_patient/<int:pk>', views.admin_delete_patient, name="admin_delete_patient"),
+    path('admin_view_appointments', views.admin_view_appointments, name="admin_view_appointments"),
+    path('admin_view_appointment/<int:pk>', views.admin_view_appointment, name="admin_view_appointment"),
+    path('admin_update_appointment/<int:pk>', views.admin_update_appointment, name="admin_update_appointment"),
+    path('admin_delete_appointment/<int:pk>', views.admin_delete_appointment, name="admin_delete_appointment"),
+    path('admin_view_room', views.admin_view_room, name="admin_view_room"),
+    path('admin_delete_room/<int:pk>', views.admin_delete_room, name="admin_delete_room"),
     path('admin_add_product', views.admin_add_product, name="admin_add_product"),
     path('admin_view_product', views.admin_view_product, name="admin_view_product"),
     path('admin_update_product/<int:pk>', views.admin_update_product, name="admin_update_product"),
@@ -40,6 +45,12 @@ urlpatterns = [
     path('admin_update_blog/<int:pk>', views.admin_update_blog, name="admin_update_blog"),
     path('admin_delete_blog/<int:pk>', views.admin_delete_blog, name="admin_delete_blog"),
     path('admin_view_message', views.admin_view_message, name="admin_view_message"),
+
+
+    # Doctor Dashboard
+    path('doctor_dashboard', views.doctor_dashboard, name="doctor_dashboard"),
+    path('doctor_view_appointments', views.doctor_view_appointments, name="doctor_view_appointments"),
+    path('doctor_view_appointment/<int:pk>', views.doctor_view_appointment, name="doctor_view_appointment"),
 
 
     # Product Start 
@@ -92,13 +103,17 @@ urlpatterns = [
 
     # for chat app
 
-    # path('/chat', views.chat_view, name='chats'),
-    # path('doctor/<int:sender>/<int:receiver>/', views.message_view, name='doctor'),
-    # path('api/messages/<int:sender>/<int:receiver>/', views.message_list, name='message-detail'),
-    # path('api/messages/', views.message_list, name='message-list'),
+    path('<str:room>/<str:userid>', views.room, name='room'),
+    # path('checkview', views.checkview, name='checkview'),
+    path('send', views.send, name='send'),
+    path('getMessages/<str:room>/', views.getMessages, name='getMessages'),
 
 
 
+
+    # Winsome Natural Product
+
+    path('winsome_naturals/', views.winsome_naturals, name='winsome_naturals'),
 
 
 

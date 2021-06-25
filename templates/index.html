@@ -126,7 +126,7 @@
             </div>
         </div>
         <p class=" seeAll">
-            <a href="/products">Let's See All Products</a>
+            <a href="/store">Let's See All Products</a>
         </p>
     </div>
 </section>
@@ -135,7 +135,7 @@
     <div class="container">
         <div class="row">
             {% for bi in blog_info %}
-            <div class="col-md-auto text-center doctor">
+            <div class="col-md-auto text-center">
                 <a href="{% url 'blog' bi.id  %}"><img src="{% static bi.featured_pic.url %}" alt="not found"/></a>
                 <p class="mt-3">{{bi.title}}</p>
             </div>

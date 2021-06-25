@@ -8,14 +8,14 @@ from . import models
 class DoctorUserForm(forms.ModelForm):
     class Meta:
         model=User
-        fields=['first_name','last_name','username','password']
+        fields=['first_name','last_name','username','password', 'email']
         widgets = {
         'password': forms.PasswordInput()
         }
 class DoctorForm(forms.ModelForm):
     class Meta:
         model=models.Doctor
-        fields=['email','phone_no','address','qualification','hospital_name', 'gender', 'department', 'experience', 'consultation_fee', 'profile_pic', 'status']
+        fields=['phone_no','address','qualification','hospital_name', 'gender', 'department', 'experience', 'consultation_fee', 'profile_pic', 'status']
 
 
 
@@ -46,7 +46,7 @@ class ProductForm(forms.ModelForm):
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model=models.Appointment
-        fields=['name', 'email', 'phone_no', 'whatsapp_no', 'gender', 'city', 'problems', 'consultation_mode']
+        fields=['phone_no', 'whatsapp_no', 'gender', 'city', 'problems', 'consultation_mode']
 
 
 class BlogForm(forms.ModelForm):

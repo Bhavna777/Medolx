@@ -8,6 +8,11 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.models import Group
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
+from django.http import HttpResponse, JsonResponse
+import basehash
+
+
+hash_fn = basehash.base36()
 
 # Create your views here.
 
@@ -68,11 +73,6 @@ def dashboard(request):
         return redirect('signin')
     return render(request, 'dashboard.html')
 
-@user_passes_test(is_doctor)
-def doctor_dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect('signin')
-    return render(request, 'doctor_dashboard.html')
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -148,7 +148,7 @@ def admin_update_doctor(request,pk):
 
     userForm=forms.DoctorUserForm(instance=user)
     doctorForm=forms.DoctorForm(request.FILES,instance=doctor)
-    mydict={'userForm':userForm,'doctorForm':doctorForm}
+    mydict={'doctor': doctor, 'userForm':userForm,'doctorForm':doctorForm}
     if request.method=='POST':
         userForm=forms.DoctorUserForm(request.POST,instance=user)
         doctorForm=forms.DoctorForm(request.POST,request.FILES,instance=doctor)
@@ -160,7 +160,7 @@ def admin_update_doctor(request,pk):
             doctor.status=True
             doctor.save()
             return redirect('admin_view_doctor')
-    return render(request,'admin_update_doctor.html',context=mydict)
+    return render(request,'admin_update_doctor.html', context=mydict)
 
 @user_passes_test(lambda u: u.is_superuser)
 def admin_delete_doctor(request,pk):
@@ -218,7 +218,7 @@ def admin_update_patient(request,pk):
 
     userForm=forms.PatientUserForm(instance=user)
     patientForm=forms.PatientForm(request.FILES,instance=patient)
-    mydict={'userForm':userForm,'patientForm':patientForm}
+    mydict={'patient': patient, 'userForm':userForm,'patientForm':patientForm}
     if request.method=='POST':
         userForm=forms.PatientUserForm(request.POST,instance=user)
         patientForm=forms.PatientForm(request.POST,request.FILES,instance=patient)
@@ -244,6 +244,30 @@ def admin_delete_patient(request,pk):
     user.delete()
     patient.delete()
     return redirect('admin_view_patient')
+
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_view_appointments(request):
+    appointments=models.Appointment.objects.all().filter()
+    return render(request, 'admin_view_appointments.html', {'appointments':appointments})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_delete_appointment(request,pk):
+    appointment=models.Appointment.objects.get(id=pk)
+    appointment.delete()
+    return redirect('admin_view_appointments')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_view_appointment(request,pk):
+    appointment=models.Appointment.objects.get(id=pk)
+    return render(request,'admin_view_appointment.html', {'appointment':appointment})
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_update_appointment(request,pk):
+    appointment=models.Appointment.objects.get(id=pk)
+    return render(request,'admin_update_appointment.html', {'appointment':appointment})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -274,7 +298,7 @@ def admin_update_product(request,pk):
     product=models.Product.objects.get(id=pk)
 
     productForm=forms.ProductForm(request.FILES,instance=product)
-    mydict={'productForm':productForm}
+    mydict={'product':product, 'productForm':productForm}
     if request.method=='POST':
         productForm=forms.ProductForm(request.POST,request.FILES,instance=product)
         if productForm.is_valid():
@@ -319,7 +343,7 @@ def admin_update_blog(request,pk):
     blog=models.Blog.objects.get(id=pk)
 
     blogForm=forms.BlogForm(request.FILES,instance=blog)
-    mydict={'blogForm':blogForm}
+    mydict={'blog':blog, 'blogForm':blogForm}
     if request.method=='POST':
         blogForm=forms.BlogForm(request.POST,request.FILES,instance=blog)
         if blogForm.is_valid():
@@ -343,7 +367,41 @@ def admin_view_message(request):
     return render(request,'admin_view_message.html',{'contacts':contacts})
 
 
+@user_passes_test(lambda u: u.is_superuser)
+def admin_view_room(request):
+    # return render(request, 'admin_view_product.html')
+    rooms=models.Room.objects.all()
+    username=hash_fn.hash(request.user.id)
+    return render(request,'admin_view_room.html',{'rooms':rooms, 'username':username})
 
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_delete_room(request,pk):
+    room=models.Room.objects.get(id=pk)
+    room.delete()
+    return redirect('admin_view_room')
+
+
+# Doctor dashboard
+
+@user_passes_test(is_doctor)
+def doctor_dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('signin')
+    return render(request, 'doctor_dashboard.html')
+
+def doctor_view_appointments(request):
+    doctor=models.Doctor.objects.get(user_id=request.user.id) #for profile picture of doctor in sidebar
+    doctor_id = doctor.id
+    appointments=models.Appointment.objects.all().filter(doctorId=doctor_id)
+    print(appointments)
+    return render(request,'doctor_view_appointments.html',{'appointments':appointments,'doctor':doctor})
+
+
+@user_passes_test(is_doctor)
+def doctor_view_appointment(request,pk):
+    appointment=models.Appointment.objects.get(id=pk)
+    return render(request,'doctor_view_appointment.html', {'appointment':appointment})
 
 
 
@@ -384,17 +442,92 @@ def doctors(request):
 def doctor(request,pk):
     appointmentForm=forms.AppointmentForm()
     doctor=models.Doctor.objects.get(id=pk)
+    
     if request.method=='POST':
+        if not request.user.is_authenticated:
+            messages.warning(request, 'First you have to login')
+            return redirect('signin')
+
         appointmentForm=forms.AppointmentForm(request.POST, request.FILES)
         if appointmentForm.is_valid():
-            appointment=appointmentForm.save()
-            appointment.save()
-            return render(request, 'appointments.html', {'doctor':doctor})
+            appointment=appointmentForm.save(commit=False)
+            appointment.doctorId=doctor.id
+            appointment.patientId=request.user.id
+            appointment.doctor_name=models.Doctor.objects.get(id=doctor.id).get_name
+            appointment.patient_name=models.User.objects.get(id=request.user.id).first_name
+            appointment.email=models.User.objects.get(id=request.user.id).email
+            room=str(hash_fn.hash(str(appointment.doctorId)+str(appointment.patientId)))
+            userid=str(hash_fn.hash(str(request.user.id)))
+
+            validation=str(hash_fn.hash(str(appointment.doctorId)+str(appointment.patientId)))
+
+            if models.Room.objects.filter(name=room).exists() and room==validation:
+                return redirect('/'+room+'/'+userid)
+            elif(room==validation):
+                new_room = models.Room.objects.create(name=room)
+                new_room.save()
+                return redirect('/'+room+'/'+userid)
+            else:
+                return HttpResponseRedirect("Invalid, You can not access")
+
+            return render(request, 'appointments.html', {'doctor':doctor, 'room':room})
     return render(request,'doctor.html', {'doctor':doctor, 'appointmentForm':appointmentForm})
+
+
+
+
+
+def room(request, room, userid):
+    print(request.user.id)
+    print(room)
+
+    username = request.GET.get('username')
+    room_details = models.Room.objects.get(name=room)
+    return render(request, 'room.html', {
+        'username': username,
+        'userid':userid,
+        'room': room,
+        'room_details': room_details
+    })
+
+
+
+# def checkview(request):
+#     room = request.POST['room_name']
+#     username = request.POST['username']
+#     userid = request.POST['userid']
+
+    # if models.Room.objects.filter(name=room).exists():
+    #     return redirect('/'+room+'/'+userid)
+    # else:
+    #     new_room = models.Room.objects.create(name=room)
+    #     new_room.save()
+    #     return redirect('/'+room+'/'+userid)
+
+
+def send(request):
+    message = request.POST['message']
+    username = request.user
+    room_id = request.POST['room_id']
+
+    new_message = models.Message.objects.create(value=message, user=username, room=room_id)
+    new_message.save()
+    return HttpResponse('Message sent successfully')
+
+def getMessages(request, room):
+    room_details = models.Room.objects.get(name=room)
+
+    messages = models.Message.objects.filter(room=room_details.id)
+    return JsonResponse({"messages":list(messages.values())})
+
+
+
 
 
 def appointment(request):
     return render(request, 'appointments.html')
+
+
 
 # Products Start 
 
@@ -439,9 +572,9 @@ def updateItem(request):
 	print('Action:', action)
 	print('Product:', productId)
 
-	patient = request.user.patient
+	user = request.user
 	product = Product.objects.get(id=productId)
-	order, created = Order.objects.get_or_create(patient=patient, complete=False)
+	order, created = Order.objects.get_or_create(user=user, complete=False)
 
 	orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
 
@@ -462,10 +595,10 @@ def processOrder(request):
 	data = json.loads(request.body)
 
 	if request.user.is_authenticated:
-		patient = request.user.patient
-		order, created = Order.objects.get_or_create(patient=patient, complete=False)
+		user = request.user
+		order, created = Order.objects.get_or_create(user=user, complete=False)
 	else:
-		patient, order = guestOrder(request, data)
+		user, order = guestOrder(request, data)
 
 	total = float(data['form']['total'])
 	order.transaction_id = transaction_id
@@ -476,7 +609,7 @@ def processOrder(request):
 
 	if order.shipping == True:
 		ShippingAddress.objects.create(
-		patient=patient,
+		user=user,
 		order=order,
 		address=data['shipping']['address'],
 		city=data['shipping']['city'],
@@ -511,6 +644,13 @@ def blog(request,pk):
 
 
 
+
+
+# Winsome Natural Product Start 
+
+
+def winsome_naturals(request):
+    return render(request, 'winsome_naturals.html')
 
 
 

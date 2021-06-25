@@ -43,8 +43,8 @@ def cookieCart(request):
 
 def cartData(request):
 	if request.user.is_authenticated:
-		patient = request.user.patient
-		order, created = Order.objects.get_or_create(patient=patient, complete=False)
+		user = request.user
+		order, created = Order.objects.get_or_create(user=user, complete=False)
 		items = order.orderitem_set.all()
 		cartItems = order.get_cart_items
 	else:
@@ -63,14 +63,14 @@ def guestOrder(request, data):
 	cookieData = cookieCart(request)
 	items = cookieData['items']
 
-	patient, created = Patient.objects.get_or_create(
+	user, created = User.objects.get_or_create(
 			email=email,
 			)
-	patient.name = name
-	patient.save()
+	user.name = name
+	user.save()
 
 	order = Order.objects.create(
-		patient=patient,
+		user=user,
 		complete=False,
 		)
 
@@ -81,5 +81,5 @@ def guestOrder(request, data):
 			order=order,
 			quantity=(item['quantity'] if item['quantity']>0 else -1*item['quantity']), # negative quantity = freebies
 		)
-	return patient, order
+	return user, order
 

@@ -77,6 +77,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         {% load static %}
         <img class="navimg" src="{% static "images/logo.png" %}" alt="Logo">
+        
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -97,8 +98,11 @@
                     <a class="nav-link" href="/blogs">Blogs</a>
                 </li>
                 <div class="form-inline my-2 my-lg-0 ml-3">
-                    <a href="/signin"class="btn btn-success">Login</a>
-                    
+                    {% if request.user.is_authenticated %}
+                        <a href="/logout"class="btn btn-success">Logout</a>
+                    {% else %}
+                        <a href="/signin"class="btn btn-success">Login</a>
+                    {% endif %}
                     <a href="{% url 'cart' %}">
                        <img  id="cart-icon" src="{% static 'images/cart.png' %}">
                    </a>
@@ -111,6 +115,7 @@
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
         </div>
+        
     </nav>
     {% if messages %}
         {% for message in messages %}
@@ -130,7 +135,7 @@
 
         <p>
           <a href="https://www.facebook.com/medolxhealthcare/" class="fa fa-facebook"></a>
-          <a href="+918858586655" class="fa fa-whatsapp"></a>
+          <a href="https://wa.me/918858586655" class="fa fa-whatsapp"></a>
           <a href="https://www.instagram.com/medolxhealthcare/" class="fa fa-instagram"></a>
           <a href="https://twitter.com/MEDOLX1" class="fa fa-twitter"></a>
         </p>
@@ -162,5 +167,8 @@
 
         <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
 </body>
+
+
+
 
 </html>

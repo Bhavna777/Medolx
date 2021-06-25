@@ -59,10 +59,10 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              {% render_field productForm.name class="form-control" placeholder="Product Name" %}
+              {% render_field productForm.name class="form-control" placeholder="Product Name" value=product.name %}
             </div>
             <div class="form-group">
-              {% render_field productForm.used_for class="form-control" placeholder="Used For" %}
+              {% render_field productForm.used_for class="form-control" placeholder="Used For" value=product.used_for %}
             </div>
             <div class="form-group">
               {% render_field productForm.rate class="form-control" placeholder="Rate" %}

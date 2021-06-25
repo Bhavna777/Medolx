@@ -49,19 +49,19 @@
 
 
 <section class="doctors">
-    <h1 class="text-center">{{doctor.user.first_name}} {{doctor.user.last_name}}</h1><hr>
+    <h1 class="text-center">{{doctor.get_name}}</h1><hr>
     <div class="container mt-5">
         <div class="row">
-            <div class="col-7 text-center mt-3">
-                <p>Name :-  Dr. {{doctor.user.first_name}} {{doctor.user.last_name}}</p>
+            <div class="col-md-6 text-center">
+              <img src={% static doctor.profile_pic.url %} alt="">
+            </div>
+            <div class="col-md-6 text-center mt-3">
+                <p>Name :-  {{doctor.get_name}}</p>
                 <p>Specilities :- {{doctor.department}}</p>
                 <p>Experience :- {{doctor.experience}} years</p>
                 <p>Qualification :- {{doctor.qualification}}</p>
                 <p>Consultation Fee :- {{doctor.consultation_fee}}</p>
                 <button id="myBtn" class="btn btn-primary mt-3">Consult Now</button>
-            </div>
-            <div class="col-5 text-left">
-                <img src={% static doctor.profile_pic.url %} alt="">
             </div>
         </div>
     </div>
@@ -81,8 +81,6 @@
         <div class="container">
           <h1 class="text-center">Take Appointment</h1>
           <div class="form-group">
-            {% render_field appointmentForm.name class="form-control mt-2 mb-3" placeholder="Name" %}
-            {% render_field appointmentForm.email class="form-control mt-2 mb-3" placeholder="Email" %}
             {% render_field appointmentForm.phone_no class="form-control mt-2 mb-3" placeholder="Phone No" %}
             {% render_field appointmentForm.whatsapp_no class="form-control mt-2 mb-3" placeholder="Whatsapp No" %}
             {% render_field appointmentForm.gender class="form-control mt-2 mb-3" placeholder="Gender" %}

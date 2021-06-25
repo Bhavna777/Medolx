@@ -20,4 +20,46 @@
     </div>
 </div>
 </div>
+
+
+<script>
+    function checkvalid(){
+    var numbers = /[0-9]/g;
+    var passw=  /[A-Za-z]\w[0-9]/;
+
+    if(username.value == ""){
+        alert("Username not should be blank")
+        return false
+    }
+
+    else if(username.value.length<7){
+        alert("Username must be upper than 7")
+        return false
+    }
+
+    else if(!username.value.match(numbers)){
+        alert("Username Must include numbers")
+        return false
+    }
+
+    else if(password.value == ""){
+        alert("Password not should be blank")
+        return false
+    }
+    
+    else if(password.value.length<7){
+        alert("Password must be upper than 7")
+        return false
+    }
+
+    else if(!password.value.match(passw)){
+        alert("Password must include numbers and at least one capital letter")
+        return false
+        
+    }else{
+        return true
+    }
+}
+</script>
+
 {% endblock %}
